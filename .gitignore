@@ -1,0 +1,359 @@
+# ============================================
+# HARASSMENT PLATFORM BACKEND - .gitignore
+# ============================================
+
+# ============================
+# DEPENDENCIES
+# ============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================
+# ENVIRONMENT VARIABLES
+# ============================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging
+
+# Variables de entorno específicas
+config.local.js
+secrets.json
+
+# ============================
+# LOGS
+# ============================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ============================
+# DATABASE
+# ============================
+# Dumps de base de datos
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# MongoDB dumps
+dumps/
+backups/
+
+# ============================
+# TESTING
+# ============================
+# Coverage directory usado por tools como istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# ============================
+# BUILD OUTPUTS
+# ============================
+# Compiled binary addons
+build/Release
+dist/
+build/
+
+# ============================
+# TEMPORARY FILES
+# ============================
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# ============================
+# EDITORS & IDEs
+# ============================
+# VS Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA / WebStorm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================
+# OPERATING SYSTEMS
+# ============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================
+# CLOUD & DEPLOYMENT
+# ============================
+# Vercel
+.vercel
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ============================
+# UPLOADS & MEDIA
+# ============================
+# Archivos subidos por usuarios
+uploads/
+public/uploads/
+static/uploads/
+
+# Imágenes temporales
+temp/
+tmp/
+
+# ============================
+# CERTIFICATES & KEYS
+# ============================
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# SSH keys
+id_rsa
+id_rsa.pub
+known_hosts
+
+# JWT secrets (si se almacenan en archivos)
+jwt-secret.txt
+private-key.pem
+public-key.pem
+
+# ============================
+# DOCUMENTATION BUILDS
+# ============================
+# Generated documentation
+docs/build/
+api-docs/
+
+# ============================
+# ANALYTICS & MONITORING
+# ============================
+# New Relic agent config
+newrelic_agent.log
+
+# ============================
+# HARASSMENT PLATFORM SPECIFIC
+# ============================
+# Archivos específicos del proyecto
+complaint-attachments/
+investigation-files/
+training-materials/
+user-avatars/
+
+# Backups de datos sensibles
+data-exports/
+audit-reports/
+security-scans/
+
+# Configuraciones locales de desarrollo
+dev-config.json
+local-settings.js
+
+# Archivos de prueba con datos sensibles
+test-data-real.json
+sample-complaints.json
+
+# Scripts de migración ejecutados
+migrations/executed/
+
+# ============================
+# SECURITY
+# ============================
+# Archivos que podrían contener información sensible
+*.env.*
+secrets/
+private/
+confidential/
+
+# Archivos de configuración con credenciales
+database-config.json
+smtp-config.json
+oauth-credentials.json
+
+# ============================
+# PERFORMANCE & PROFILING
+# ============================
+# Profiling reports
+profiles/
+benchmark-results/
+
+# ============================
+# PACKAGE MANAGERS
+# ============================
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# pnpm
+.pnpm-store/
+
+# ============================
+# FINAL NOTES
+# ============================
+# Este .gitignore está diseñado para un proyecto Node.js/Express
+# con MongoDB y incluye consideraciones específicas para una
+# plataforma de gestión de denuncias de acoso laboral.
+#
+# Recuerda revisar regularmente este archivo y actualizarlo
+# según evolucione el proyecto.
+#
+# IMPORTANTE: Nunca subas al repositorio:
+# - Variables de entorno con credenciales
+# - Archivos de log con información sensible
+# - Datos reales de usuarios o denuncias
+# - Claves de encriptación o certificados
