@@ -159,14 +159,28 @@ const notFoundHandler = (req, res) => {
 /**
  * Configuración de CORS
  */
+/**
+ * Configuración de CORS
+ */
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permitir requests sin origin (ej: mobile apps, Postman)
+    // Permitir requests sin origin (ej: mobile apps, Postman, Swagger UI)
     if (!origin) return callback(null, true);
 
     const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [
       "http://localhost:3000",
+      "https://harassment-api.aureolab.cl", // Permitir el mismo dominio para Swagger
     ];
+
+    // Si CORS_ORIGIN contiene "*", permitir todos los orígenes
+    if (allowedOrigins.includes("*")) {
+      return callback(null, true);
+    }
+
+    // Permitir el dominio de la API para Swagger
+    if (origin && origin.includes("harassment-api.aureolab.cl")) {
+      return callback(null, true);
+    }
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -177,6 +191,8 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 };
 
 /**
