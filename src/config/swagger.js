@@ -39,12 +39,12 @@ const options = {
       {
         url:
           process.env.NODE_ENV === "production"
-            ? "https://harassment-api.aureolab.cl"
-            : `http://localhost:${process.env.PORT || 3001}`,
+            ? "https://api.harassmentplatform.com"
+            : `http://localhost:${process.env.PORT || 3000}`,
         description:
           process.env.NODE_ENV === "production"
-            ? "Servidor de producción"
-            : "Servidor de desarrollo",
+            ? "Production server"
+            : "Development server",
       },
     ],
     components: {
