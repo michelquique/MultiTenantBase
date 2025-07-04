@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 // Modelos
 const Tenant = require("../models/Tenant");
 const User = require("../models/User");
+const Complaint = require("../models/Complaint");
 
 // Logger
 const logger = require("../config/logger");
@@ -20,6 +21,7 @@ const seedData = async () => {
 
     // Limpiar datos existentes (solo en desarrollo)
     if (process.env.NODE_ENV === "development") {
+      await Complaint.deleteMany({});
       await User.deleteMany({});
       await Tenant.deleteMany({});
       logger.info("Datos existentes eliminados");
@@ -157,6 +159,63 @@ const seedData = async () => {
     await tenant2.updateLicenseUsage(true);
     logger.info(`Usuario creado para segundo tenant: ${admin2.email}`);
 
+    // Crear denuncias de ejemplo para el primer tenant
+    const complaints = [
+      {
+        tenant_id: tenant._id,
+        complainant_id: createdUsers[3]._id, // María Rodríguez (Empleado)
+        accused_id: createdUsers[1]._id, // Ana García (RRHH)
+        type: "psychological",
+        severity: "medium",
+        title: "Acoso psicológico por supervisor",
+        description:
+          "Mi supervisor ha estado haciendo comentarios despectivos sobre mi trabajo y presionándome constantemente para que renuncie. Esto ha estado ocurriendo durante los últimos 3 meses.",
+        location: "Oficina 3er piso, área de ventas",
+        incident_date: new Date("2024-06-15T10:30:00.000Z"),
+        status: "submitted",
+        priority: "normal",
+        is_confidential: true,
+      },
+      {
+        tenant_id: tenant._id,
+        complainant_id: createdUsers[4]._id, // Juan Pérez (Empleado)
+        accused_id: createdUsers[2]._id, // Carlos López (Investigador)
+        type: "discrimination",
+        severity: "high",
+        title: "Discriminación por edad en el trabajo",
+        description:
+          "He sido excluido de proyectos importantes y reuniones clave debido a mi edad. Los comentarios sobre mi 'falta de energía' y 'poca adaptabilidad a las nuevas tecnologías' son constantes.",
+        location: "Sala de reuniones, 2do piso",
+        incident_date: new Date("2024-06-10T14:00:00.000Z"),
+        status: "under_review",
+        priority: "high",
+        is_confidential: true,
+      },
+      {
+        tenant_id: tenant._id,
+        complainant_id: createdUsers[1]._id, // Ana García (RRHH)
+        accused_id: createdUsers[0]._id, // Admin Sistema (Tenant Admin)
+        type: "sexual",
+        severity: "critical",
+        title: "Acoso sexual en el trabajo",
+        description:
+          "He recibido comentarios inapropiados y propuestas sexuales no deseadas por parte de un ejecutivo. También ha habido contacto físico no consentido en varias ocasiones.",
+        location: "Oficina ejecutiva, 4to piso",
+        incident_date: new Date("2024-06-05T16:00:00.000Z"),
+        status: "investigating",
+        priority: "urgent",
+        is_confidential: true,
+        assigned_to: createdUsers[2]._id, // Carlos López como investigador
+        assigned_at: new Date("2024-06-06T09:00:00.000Z"),
+      },
+    ];
+
+    // Crear denuncias
+    for (const complaintData of complaints) {
+      const complaint = await Complaint.create(complaintData);
+      logger.info(`Denuncia creada: ${complaint.title} (${complaint.status})`);
+    }
+
     logger.info("=== DATOS DE PRUEBA CREADOS ===");
     logger.info("Tenant 1: Empresa Demo S.A. (RUT: 76.123.456-7)");
     logger.info("- admin@empresademo.cl / Admin123! (Tenant Admin)");
@@ -164,6 +223,11 @@ const seedData = async () => {
     logger.info("- carlos.lopez@empresademo.cl / Password123! (Investigador)");
     logger.info("- maria.rodriguez@empresademo.cl / Password123! (Empleado)");
     logger.info("- juan.perez@empresademo.cl / Password123! (Empleado)");
+    logger.info("");
+    logger.info("Denuncias de ejemplo creadas:");
+    logger.info("- Acoso psicológico por supervisor (submitted)");
+    logger.info("- Discriminación por edad en el trabajo (under_review)");
+    logger.info("- Acoso sexual en el trabajo (investigating)");
     logger.info("");
     logger.info("Tenant 2: Otra Empresa Ltda. (RUT: 77.987.654-3)");
     logger.info("- admin@otraempresa.cl / Admin123! (Tenant Admin)");

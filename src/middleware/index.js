@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const { validationResult } = require("express-validator");
 const logger = require("../config/logger");
 
 /**
@@ -34,7 +35,7 @@ const createRateLimit = (windowMs, max, message) => {
  */
 const authRateLimit = createRateLimit(
   15 * 60 * 1000, // 15 minutos
-  5, // máximo 5 intentos por IP
+  20, // máximo 20 intentos por IP (aumentado para desarrollo)
   "Demasiados intentos de login, intente más tarde"
 );
 
@@ -143,6 +144,24 @@ const errorHandler = (err, req, res, next) => {
 };
 
 /**
+ * Middleware para validación de requests
+ */
+const validateRequest = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: "Datos de entrada inválidos",
+      errors: errors.array().map((error) => ({
+        field: error.path,
+        message: error.msg,
+      })),
+    });
+  }
+  next();
+};
+
+/**
  * Middleware para rutas no encontradas
  */
 const notFoundHandler = (req, res) => {
@@ -241,6 +260,9 @@ module.exports = {
   securityMiddleware,
   corsOptions,
   tenantHeader,
+
+  // Validación
+  validateRequest,
 
   // Express middlewares configurados
   jsonParser: express.json({ limit: "10mb" }),
