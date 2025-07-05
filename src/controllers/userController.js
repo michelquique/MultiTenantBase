@@ -23,7 +23,7 @@ class UserController {
         sort_order = "desc",
       } = req.query;
 
-      const tenantId = new mongoose.Types.ObjectId(req.user.tenantId);
+      const tenantId = req.tenantId;
       const userRole = req.user.role;
 
       // Construir filtros
