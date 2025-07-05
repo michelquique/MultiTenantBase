@@ -23,6 +23,7 @@ const {
 // Rutas
 const authRoutes = require("./routes/auth");
 const complaintRoutes = require("./routes/complaints");
+const userRoutes = require("./routes/users");
 
 const app = express();
 
@@ -127,7 +128,7 @@ app.get("/", (req, res) => {
     docs: "/api/docs",
     endpoints: {
       auth: "/api/auth",
-      users: "/api/users (próximamente)",
+      users: "/api/users",
       complaints: "/api/complaints",
       investigations: "/api/investigations (próximamente)",
       training: "/api/training (próximamente)",
@@ -140,25 +141,9 @@ app.get("/", (req, res) => {
 // Rutas de la API
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/users", userRoutes);
 
 // Placeholder para futuras rutas con documentación Swagger
-/**
- * @swagger
- * /api/users:
- *   get:
- *     summary: Gestión de usuarios (próximamente)
- *     description: Endpoint en desarrollo para gestión de usuarios
- *     tags: [Users]
- *     responses:
- *       501:
- *         description: Endpoint en desarrollo
- */
-app.use("/api/users", (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: "Endpoint en desarrollo",
-  });
-});
 
 /**
  * @swagger
