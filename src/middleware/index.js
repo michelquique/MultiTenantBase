@@ -188,11 +188,20 @@ const corsOptions = {
 
     const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [
       "http://localhost:3000",
-      "https://harassment-api.aureolab.cl", // Permitir el mismo dominio para Swagger
+      "https://harassment-api.aureolab.cl",
     ];
 
     // Si CORS_ORIGIN contiene "*", permitir todos los orígenes
     if (allowedOrigins.includes("*")) {
+      return callback(null, true);
+    }
+
+    // Permitir cualquier puerto de localhost en desarrollo
+    if (
+      process.env.NODE_ENV === "development" &&
+      origin &&
+      origin.startsWith("http://localhost:")
+    ) {
       return callback(null, true);
     }
 
