@@ -17,14 +17,21 @@ const options = {
         - **Roles**: Tenant Admin, RRHH, Investigador, Empleado
         
         ## Autenticación:
-        1. Hacer login con email, password y RUT del tenant
+        1. Hacer login con email y password, usando header X-Tenant-Slug
         2. Usar el access_token en el header Authorization: Bearer <token>
         3. Renovar token usando refresh_token cuando expire
         
+        ## Headers requeridos:
+        - **X-Tenant-Slug**: Slug único del tenant (formato: a-z, 0-9, guiones)
+        
         ## Rate Limiting:
-        - Auth endpoints: 5 intentos por 15 minutos por IP
+        - Auth endpoints: 20 intentos por 15 minutos por IP
         - API general: 100 requests por 15 minutos por IP
         - API específica: 30 requests por minuto por IP
+        
+        ## Slugs de ejemplo disponibles:
+        - **empresademo**: Empresa Demo S.A.
+        - **otraempresa**: Otra Empresa Ltda.
       `,
       contact: {
         name: "API Support",
@@ -54,6 +61,19 @@ const options = {
           scheme: "bearer",
           bearerFormat: "JWT",
           description: "JWT token obtenido del endpoint /api/auth/login",
+        },
+      },
+      parameters: {
+        TenantSlugHeader: {
+          name: "X-Tenant-Slug",
+          in: "header",
+          required: true,
+          schema: {
+            type: "string",
+            pattern: "^[a-z0-9-]+$",
+            example: "empresademo",
+          },
+          description: "Slug único del tenant para identificar la organización",
         },
       },
       schemas: {
@@ -124,6 +144,12 @@ const options = {
               description: "Nombre de la empresa",
               example: "Empresa Demo S.A.",
             },
+            slug: {
+              type: "string",
+              description: "Slug único para identificar el tenant",
+              pattern: "^[a-z0-9-]+$",
+              example: "empresademo",
+            },
             branding: {
               type: "object",
               properties: {
@@ -166,7 +192,7 @@ const options = {
         },
         LoginRequest: {
           type: "object",
-          required: ["email", "password", "tenant_rut"],
+          required: ["email", "password"],
           properties: {
             email: {
               type: "string",
@@ -179,12 +205,6 @@ const options = {
               minLength: 6,
               description: "Contraseña del usuario",
               example: "Admin123!",
-            },
-            tenant_rut: {
-              type: "string",
-              pattern: "^\\d{1,2}\\.\\d{3}\\.\\d{3}-[\\dkK]$",
-              description: "RUT de la empresa en formato chileno",
-              example: "76.123.456-7",
             },
           },
         },
@@ -376,6 +396,39 @@ const options = {
             },
           },
         },
+        TenantHeaderError: {
+          description: "Header X-Tenant-Slug requerido o inválido",
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/ErrorResponse",
+              },
+              examples: {
+                missing_header: {
+                  summary: "Header faltante",
+                  value: {
+                    success: false,
+                    message: "Header X-Tenant-Slug es requerido",
+                  },
+                },
+                invalid_format: {
+                  summary: "Formato inválido",
+                  value: {
+                    success: false,
+                    message: "Formato de tenant slug inválido",
+                  },
+                },
+                tenant_not_found: {
+                  summary: "Tenant no encontrado",
+                  value: {
+                    success: false,
+                    message: "Tenant no encontrado o inactivo",
+                  },
+                },
+              },
+            },
+          },
+        },
         RateLimitError: {
           description: "Límite de requests excedido",
           content: {
@@ -403,15 +456,15 @@ const options = {
       },
       {
         name: "Users",
-        description: "Gestión de usuarios (próximamente)",
+        description: "Gestión de usuarios",
       },
       {
         name: "Complaints",
-        description: "Gestión de denuncias (próximamente)",
+        description: "Gestión de denuncias",
       },
       {
         name: "Investigations",
-        description: "Gestión de investigaciones (próximamente)",
+        description: "Gestión de investigaciones",
       },
       {
         name: "Training",

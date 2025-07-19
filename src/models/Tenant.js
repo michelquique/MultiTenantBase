@@ -8,6 +8,17 @@ const tenantSchema = new mongoose.Schema(
       trim: true,
       maxlength: [200, "El nombre no puede exceder 200 caracteres"],
     },
+    slug: {
+      type: String,
+      required: [true, "El slug es requerido"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [
+        /^[a-z0-9-]+$/,
+        "Slug debe contener solo letras, números y guiones",
+      ],
+    },
     rut: {
       type: String,
       required: [true, "El RUT es requerido"],
@@ -108,6 +119,24 @@ const tenantSchema = new mongoose.Schema(
 tenantSchema.index({ rut: 1 }, { unique: true });
 tenantSchema.index({ email: 1 }, { unique: true });
 tenantSchema.index({ status: 1 });
+tenantSchema.index({ slug: 1 }, { unique: true });
+
+// Middleware para auto-generar slug desde name si no existe
+tenantSchema.pre("save", function (next) {
+  if (!this.slug && this.name) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[áàäâ]/g, "a")
+      .replace(/[éèëê]/g, "e")
+      .replace(/[íìïî]/g, "i")
+      .replace(/[óòöô]/g, "o")
+      .replace(/[úùüû]/g, "u")
+      .replace(/[ñ]/g, "n")
+      .replace(/[^a-z0-9-]/g, "");
+  }
+  next();
+});
 
 // Middleware para validar que licenses.in_use no exceda total
 tenantSchema.pre("save", function (next) {

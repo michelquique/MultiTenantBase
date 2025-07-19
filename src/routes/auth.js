@@ -7,6 +7,7 @@ const AuthController = require("../controllers/authController");
 // Middlewares
 const { authenticate } = require("../middleware/auth");
 const { authRateLimit } = require("../middleware");
+const { extractTenant } = require("../middleware/tenantExtractor");
 
 // Validaciones
 const {
@@ -18,8 +19,10 @@ const {
  * /api/auth/login:
  *   post:
  *     summary: Login de usuario
- *     description: Autentica un usuario con email, contraseña y RUT del tenant
+ *     description: Autentica un usuario con email y contraseña usando el tenant slug en header
  *     tags: [Authentication]
+ *     parameters:
+ *       - $ref: '#/components/parameters/TenantSlugHeader'
  *     requestBody:
  *       required: true
  *       content:
@@ -32,19 +35,27 @@ const {
  *               value:
  *                 email: "admin@empresademo.cl"
  *                 password: "Admin123!"
- *                 tenant_rut: "76.123.456-7"
  *             rrhh:
  *               summary: Login como RRHH
  *               value:
  *                 email: "ana.garcia@empresademo.cl"
  *                 password: "Password123!"
- *                 tenant_rut: "76.123.456-7"
  *             employee:
  *               summary: Login como Empleado
  *               value:
  *                 email: "maria.rodriguez@empresademo.cl"
  *                 password: "Password123!"
- *                 tenant_rut: "76.123.456-7"
+ *             investigator:
+ *               summary: Login como Investigador
+ *               value:
+ *                 email: "carlos.lopez@empresademo.cl"
+ *                 password: "Password123!"
+ *             second_tenant:
+ *               summary: Login en segundo tenant
+ *               value:
+ *                 email: "admin@otraempresa.cl"
+ *                 password: "Admin123!"
+ *               description: "Usar con X-Tenant-Slug: otraempresa"
  *     responses:
  *       200:
  *         description: Login exitoso
@@ -52,17 +63,54 @@ const {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/LoginResponse'
+ *             example:
+ *               success: true
+ *               message: "Login exitoso"
+ *               data:
+ *                 user:
+ *                   id: "60d5ecb54b24a820f8d1c3a1"
+ *                   first_name: "Admin"
+ *                   last_name: "Sistema"
+ *                   full_name: "Admin Sistema"
+ *                   email: "admin@empresademo.cl"
+ *                   role: "Tenant Admin"
+ *                   department: "Administración"
+ *                 tenant:
+ *                   id: "60d5ecb54b24a820f8d1c3a2"
+ *                   name: "Empresa Demo S.A."
+ *                   slug: "empresademo"
+ *                   branding:
+ *                     logo_url: "https://placehold.co/200x50/0056b3/fff?text=Demo+Corp"
+ *                     primary_color: "#0056b3"
+ *                     secondary_color: "#4CAF50"
+ *                 tokens:
+ *                   access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                   refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                   expires_in: "24h"
  *       400:
- *         $ref: '#/components/responses/ValidationError'
+ *         $ref: '#/components/responses/TenantHeaderError'
  *       401:
- *         description: Credenciales inválidas
+ *         description: Credenciales inválidas o tenant no encontrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               message: "Credenciales inválidas"
+ *             examples:
+ *               invalid_credentials:
+ *                 summary: Credenciales inválidas
+ *                 value:
+ *                   success: false
+ *                   message: "Credenciales inválidas"
+ *               tenant_not_found:
+ *                 summary: Tenant no encontrado
+ *                 value:
+ *                   success: false
+ *                   message: "Tenant no encontrado o inactivo"
+ *               inactive_account:
+ *                 summary: Cuenta inactiva
+ *                 value:
+ *                   success: false
+ *                   message: "Cuenta inactiva"
  *       423:
  *         description: Cuenta bloqueada temporalmente
  *         content:
@@ -79,9 +127,16 @@ const {
  * @route   POST /api/auth/login
  * @desc    Login de usuario
  * @access  Public
- * @body    { email, password, tenant_rut }
+ * @headers X-Tenant-Slug (required)
+ * @body    { email, password }
  */
-router.post("/login", authRateLimit, loginValidation, AuthController.login);
+router.post(
+  "/login",
+  authRateLimit,
+  extractTenant,
+  loginValidation,
+  AuthController.login
+);
 /**
  * @swagger
  * /api/auth/refresh:
@@ -205,6 +260,30 @@ router.post("/logout", authenticate, AuthController.logout);
  *                       $ref: '#/components/schemas/User'
  *                     tenant:
  *                       $ref: '#/components/schemas/Tenant'
+ *             example:
+ *               success: true
+ *               data:
+ *                 user:
+ *                   id: "60d5ecb54b24a820f8d1c3a1"
+ *                   first_name: "Admin"
+ *                   last_name: "Sistema"
+ *                   full_name: "Admin Sistema"
+ *                   email: "admin@empresademo.cl"
+ *                   role: "Tenant Admin"
+ *                   department: "Administración"
+ *                   last_login_at: "2024-06-26T15:30:00.000Z"
+ *                   created_at: "2024-01-15T10:00:00.000Z"
+ *                 tenant:
+ *                   id: "60d5ecb54b24a820f8d1c3a2"
+ *                   name: "Empresa Demo S.A."
+ *                   slug: "empresademo"
+ *                   branding:
+ *                     logo_url: "https://placehold.co/200x50/0056b3/fff?text=Demo+Corp"
+ *                     primary_color: "#0056b3"
+ *                     secondary_color: "#4CAF50"
+ *                   subscription_plan:
+ *                     type: "Premium"
+ *                     status: "active"
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       404:

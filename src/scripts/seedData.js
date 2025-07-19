@@ -32,6 +32,7 @@ const seedData = async () => {
     // Crear tenant de prueba
     const tenantData = {
       name: "Empresa Demo S.A.",
+      slug: "empresademo", // ✅ Agregar slug
       rut: "76.123.456-7",
       address: "Av. Providencia 1234, Santiago",
       phone: "+56912345678",
@@ -136,6 +137,7 @@ const seedData = async () => {
     // Crear segundo tenant para testing multi-tenant
     const tenant2Data = {
       name: "Otra Empresa Ltda.",
+      slug: "otraempresa", // ✅ Agregar slug
       rut: "77.987.654-3",
       address: "Av. Las Condes 567, Santiago",
       phone: "+56987654321",

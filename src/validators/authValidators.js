@@ -17,11 +17,8 @@ const loginValidation = [
     .isLength({ max: 100 })
     .withMessage("Contraseña no puede exceder 100 caracteres"),
 
-  body("tenant_rut")
-    .matches(/^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/)
-    .withMessage("RUT debe tener formato válido (XX.XXX.XXX-X)")
-    .isLength({ max: 12 })
-    .withMessage("RUT no puede exceder 12 caracteres"),
+  // REMOVER tenant_rut validation
+  // Agregar validación del header si es necesario mediante middleware
 ];
 
 /**

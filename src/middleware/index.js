@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const { validationResult } = require("express-validator");
 const logger = require("../config/logger");
+const { extractTenant } = require("./tenantExtractor");
 
 /**
  * Rate limiting personalizado por tipo de endpoint
@@ -178,9 +179,6 @@ const notFoundHandler = (req, res) => {
 /**
  * Configuración de CORS
  */
-/**
- * Configuración de CORS
- */
 const corsOptions = {
   origin: function (origin, callback) {
     // Permitir requests sin origin (ej: mobile apps, Postman, Swagger UI)
@@ -196,11 +194,12 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Permitir cualquier puerto de localhost en desarrollo
+    // Permitir localhost y subdominios en desarrollo
     if (
       process.env.NODE_ENV === "development" &&
       origin &&
-      origin.startsWith("http://localhost:")
+      (origin.startsWith("http://localhost:") ||
+        origin.match(/^https?:\/\/[^.]+\.localhost:\d+$/))
     ) {
       return callback(null, true);
     }
@@ -220,7 +219,12 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "X-Tenant-Slug", // Agregar header personalizado para tenant
+  ],
 };
 
 /**
@@ -277,4 +281,5 @@ module.exports = {
   jsonParser: express.json({ limit: "10mb" }),
   urlencodedParser: express.urlencoded({ extended: true, limit: "10mb" }),
   cors: cors(corsOptions),
+  extractTenant,
 };

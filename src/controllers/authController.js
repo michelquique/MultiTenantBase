@@ -20,26 +20,13 @@ class AuthController {
         });
       }
 
-      const { email, password, tenant_rut } = req.body;
+      const { email, password } = req.body;
+      const tenant = req.tenant; // Obtenido del middleware
 
       // Log del intento de login
       logger.info(
-        `Intento de login para email: ${email}, tenant: ${tenant_rut}`
+        `Intento de login para email: ${email}, tenant: ${tenant.slug}`
       );
-
-      // Buscar el tenant por RUT
-      const tenant = await Tenant.findOne({
-        rut: tenant_rut,
-        status: "active",
-      });
-
-      if (!tenant) {
-        logger.warn(`Intento de login con tenant inválido: ${tenant_rut}`);
-        return res.status(401).json({
-          success: false,
-          message: "Credenciales inválidas",
-        });
-      }
 
       // Buscar usuario por email y tenant
       const user = await User.findOne({
@@ -49,7 +36,7 @@ class AuthController {
 
       if (!user) {
         logger.warn(
-          `Intento de login con email inexistente: ${email} en tenant ${tenant_rut}`
+          `Intento de login con email inexistente: ${email} en tenant ${tenant.slug}`
         );
         return res.status(401).json({
           success: false,
@@ -134,6 +121,7 @@ class AuthController {
           tenant: {
             id: tenant._id,
             name: tenant.name,
+            slug: tenant.slug, // Agregar slug a la respuesta
             branding: tenant.branding,
           },
           tokens: {
