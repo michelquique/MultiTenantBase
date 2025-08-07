@@ -29,6 +29,16 @@ const seedData = async () => {
       logger.info("Datos existentes eliminados");
     }
 
+    // Validar entorno para evitar ejecución en producción
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("No ejecutar seed en producción");
+    }
+
+    // Verificar conexión antes de proceder
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error("No hay conexión a MongoDB");
+    }
+
     // Crear tenant de prueba
     const tenantData = {
       name: "Empresa Demo S.A.",
@@ -55,13 +65,20 @@ const seedData = async () => {
       status: "active",
     };
 
-    const tenant = await Tenant.create(tenantData);
-    logger.info(`Tenant creado: ${tenant.name}`);
+    // ✅ Declarar la variable fuera del try-catch
+    let tenant;
+    try {
+      tenant = await Tenant.create(tenantData); // ✅ Asignar sin const
+      logger.info(`Tenant creado: ${tenant.name}`);
+    } catch (error) {
+      logger.error(`Error creando tenant: ${error.message}`);
+      throw error;
+    }
 
     // Crear usuarios de prueba
     const users = [
       {
-        tenant_id: tenant._id,
+        tenant_id: tenant._id, // ✅ Ahora tenant está definido
         first_name: "Admin",
         last_name: "Sistema",
         email: "admin@empresademo.cl",
@@ -148,6 +165,12 @@ const seedData = async () => {
         end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         status: "active",
       },
+      // ⚠️ AGREGAR: Configuración de branding faltante
+      branding: {
+        logo_url: "https://placehold.co/200x50/ff6b35/fff?text=Otra+Corp",
+        primary_color: "#ff6b35",
+        secondary_color: "#2196F3",
+      },
       licenses: {
         total: 50,
         in_use: 0,
@@ -155,12 +178,19 @@ const seedData = async () => {
       status: "active",
     };
 
-    const tenant2 = await Tenant.create(tenant2Data);
-    logger.info(`Segundo tenant creado: ${tenant2.name}`);
+    // ✅ Declarar la variable fuera del try-catch para el segundo tenant también
+    let tenant2;
+    try {
+      tenant2 = await Tenant.create(tenant2Data);
+      logger.info(`Segundo tenant creado: ${tenant2.name}`);
+    } catch (error) {
+      logger.error(`Error creando segundo tenant: ${error.message}`);
+      throw error;
+    }
 
     // Usuario admin para el segundo tenant
     const admin2 = await User.create({
-      tenant_id: tenant2._id,
+      tenant_id: tenant2._id, // ✅ Ahora tenant2 está definido
       first_name: "Super",
       last_name: "Admin",
       email: "admin@otraempresa.cl",

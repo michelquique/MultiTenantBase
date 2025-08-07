@@ -60,7 +60,32 @@ npm run test:coverage
 - ✅ Rate limiting
 - ✅ Validaciones de campos
 
-### 2. **Test Simple de Demostración**
+### 2. **Tests de Recursos (Nuevo)**
+
+```bash
+# Tests unitarios completos de recursos
+npm run test:resources
+
+# Test simple de recursos
+npm run test:resources:simple
+```
+
+**Archivo**: `tests/resources.test.js` y `test-resources-simple.js`
+
+**Qué testea**:
+
+- ✅ Obtención de recursos agrupados por categoría
+- ✅ Filtrado por categoría específica
+- ✅ Validación de claves de recursos
+- ✅ Creación de recursos (solo Tenant Admin)
+- ✅ Actualización de recursos (solo Tenant Admin)
+- ✅ Desactivación de recursos (soft delete)
+- ✅ Control de permisos por rol
+- ✅ Aislamiento multi-tenant
+- ✅ Filtrado de recursos activos/inactivos
+- ✅ Validaciones de entrada
+
+### 3. **Test Simple de Demostración**
 
 ```bash
 # Test rápido para demostrar el nuevo formato
@@ -248,6 +273,57 @@ curl -X POST http://localhost:3000/api/auth/login \
 {
   "success": false,
   "message": "Header X-Tenant-Slug es requerido"
+}
+```
+
+### **Ejemplo de Recursos**
+
+```bash
+# Obtener todos los recursos (requiere autenticación)
+curl -X GET http://localhost:3000/api/resources \
+  -H "X-Tenant-Slug: empresademo" \
+  -H "Authorization: Bearer {access_token}"
+
+# Obtener tipos de denuncia
+curl -X GET http://localhost:3000/api/resources/complaint_types \
+  -H "X-Tenant-Slug: empresademo" \
+  -H "Authorization: Bearer {access_token}"
+
+# Validar una clave
+curl -X GET http://localhost:3000/api/resources/complaint_types/sexual/validate \
+  -H "X-Tenant-Slug: empresademo" \
+  -H "Authorization: Bearer {access_token}"
+```
+
+**Respuesta esperada (recursos)**:
+
+```json
+{
+  "success": true,
+  "message": "Recursos obtenidos exitosamente",
+  "data": {
+    "complaint_types": [
+      {
+        "key": "sexual",
+        "label": "Acoso Sexual",
+        "description": "Denuncias relacionadas con acoso sexual",
+        "sort_order": 1,
+        "metadata": {}
+      }
+    ],
+    "complaint_severity": [
+      {
+        "key": "low",
+        "label": "Baja",
+        "description": "Incidentes menores",
+        "sort_order": 1,
+        "metadata": {
+          "color": "#28a745",
+          "priority_weight": 1
+        }
+      }
+    ]
+  }
 }
 ```
 

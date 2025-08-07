@@ -25,6 +25,7 @@ const authRoutes = require("./routes/auth");
 const complaintRoutes = require("./routes/complaints");
 const userRoutes = require("./routes/users");
 const investigationRoutes = require("./routes/investigations");
+const resourceRoutes = require("./routes/resources");
 
 const app = express();
 
@@ -132,6 +133,7 @@ app.get("/", (req, res) => {
       users: "/api/users",
       complaints: "/api/complaints",
       investigations: "/api/investigations",
+      resources: "/api/resources",
       training: "/api/training (próximamente)",
       reports: "/api/reports (próximamente)",
       health: "/health",
@@ -144,6 +146,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/investigations", investigationRoutes);
+app.use("/api/resources", resourceRoutes);
 
 // Placeholder para futuras rutas con documentación Swagger
 
