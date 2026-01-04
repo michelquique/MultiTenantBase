@@ -9,6 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:resources": "jest tests/resources.test.js",
+    "test:resources:simple": "node test-resources-simple.js",
     "test:login": "node test-login-simple.js",
     "verify:swagger": "node verify-swagger-update.js",
     "seed": "node src/scripts/seedData.js",
