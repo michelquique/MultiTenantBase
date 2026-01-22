@@ -1,4 +1,14 @@
-require("dotenv").config();
+// Hacer dotenv opcional en producción
+if (process.env.NODE_ENV !== 'production') {
+  require("dotenv").config();
+}
+
+// Debug logs al inicio
+console.log("=== STARTUP DEBUG ===");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("PORT:", process.env.PORT);
+console.log("MONGODB_URI exists:", !!process.env.MONGODB_URI);
+console.log("====================");
 
 const express = require("express");
 const connectDB = require("./config/database");
@@ -28,9 +38,6 @@ const investigationRoutes = require("./routes/investigations");
 const resourceRoutes = require("./routes/resources");
 
 const app = express();
-
-// Conectar a la base de datos
-connectDB();
 
 // Configuración de trust proxy para obtener IP real detrás de proxy/load balancer
 app.set("trust proxy", 1);
@@ -192,54 +199,68 @@ app.use("*", notFoundHandler);
 // Middleware de manejo de errores (debe ir al final)
 app.use(errorHandler);
 
-// Puerto del servidor
-const PORT = process.env.PORT || 3000;
+// Función async para iniciar el servidor
+async function startServer() {
+  try {
+    // Conectar a la base de datos PRIMERO
+    await connectDB();
+    
+    // Puerto del servidor
+    const PORT = process.env.PORT || 3000;
 
-// Iniciar servidor
-const server = app.listen(PORT, () => {
-  logger.info(
-    `Servidor iniciado en puerto ${PORT} en modo ${process.env.NODE_ENV}`
-  );
-  logger.info(`Health check disponible en: http://localhost:${PORT}/health`);
-  logger.info(
-    `📖 Documentación Swagger disponible en: http://localhost:${PORT}/api/docs`
-  );
-});
+    // Iniciar servidor (agregar '0.0.0.0' para Render)
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`✅ Servidor iniciado en puerto ${PORT} en modo ${process.env.NODE_ENV}`);
+      logger.info(`🏥 Health check disponible en: http://localhost:${PORT}/health`);
+      logger.info(`📖 Documentación Swagger disponible en: http://localhost:${PORT}/api/docs`);
+    });
 
-// Manejo graceful de cierre del servidor
-const gracefulShutdown = (signal) => {
-  logger.info(`${signal} recibido. Cerrando servidor graciosamente...`);
+    // Manejo graceful de cierre del servidor
+    const gracefulShutdown = (signal) => {
+      logger.info(`${signal} recibido. Cerrando servidor graciosamente...`);
 
-  server.close((err) => {
-    if (err) {
-      logger.error("Error cerrando servidor:", err);
-      process.exit(1);
-    }
+      server.close((err) => {
+        if (err) {
+          logger.error("Error cerrando servidor:", err);
+          process.exit(1);
+        }
 
-    logger.info("Servidor cerrado exitosamente");
-    process.exit(0);
-  });
+        logger.info("Servidor cerrado exitosamente");
+        process.exit(0);
+      });
 
-  // Forzar cierre después de 30 segundos
-  setTimeout(() => {
-    logger.error("Forzando cierre del servidor después de timeout");
+      // Forzar cierre después de 30 segundos
+      setTimeout(() => {
+        logger.error("Forzando cierre del servidor después de timeout");
+        process.exit(1);
+      }, 30000);
+    };
+
+    // Event listeners para cierre graceful
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+  } catch (error) {
+    logger.error("❌ Error fatal al iniciar servidor:", error);
+    console.error("❌ Error fatal:", error);
     process.exit(1);
-  }, 30000);
-};
-
-// Event listeners para cierre graceful
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+  }
+}
 
 // Manejo de errores no capturados
 process.on("uncaughtException", (err) => {
+  console.error("❌ Uncaught Exception:", err);
   logger.error("Uncaught Exception:", err);
   process.exit(1);
 });
 
 process.on("unhandledRejection", (err, promise) => {
+  console.error("❌ Unhandled Rejection:", err);
   logger.error("Unhandled Rejection en:", promise, "razón:", err);
   process.exit(1);
 });
+
+// Iniciar el servidor
+startServer();
 
 module.exports = app;

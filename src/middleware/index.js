@@ -36,7 +36,7 @@ const createRateLimit = (windowMs, max, message) => {
  */
 const authRateLimit = createRateLimit(
   15 * 60 * 1000, // 15 minutos
-  20, // máximo 20 intentos por IP (aumentado para desarrollo)
+  100, // máximo 100 intentos por IP (aumentado para desarrollo)
   "Demasiados intentos de login, intente más tarde"
 );
 

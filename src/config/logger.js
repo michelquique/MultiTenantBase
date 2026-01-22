@@ -3,9 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Determinar si estamos en un ambiente con filesystem persistente
-const canWriteFiles =
-  process.env.NODE_ENV !== "production" ||
-  process.env.ENABLE_FILE_LOGS === "true";
+const canWriteFiles = process.env.NODE_ENV !== "production" || process.env.ENABLE_FILE_LOGS === "true";
 
 // Configurar transportes según el ambiente
 const transports = [];
@@ -51,10 +49,7 @@ if (canWriteFiles) {
 
     console.log("✅ File logging enabled");
   } catch (error) {
-    console.warn(
-      "⚠️ Could not create log files, using console only:",
-      error.message
-    );
+    console.warn("⚠️ Could not create log files, using console only:", error.message);
   }
 } else {
   console.log("ℹ️ File logging disabled (production mode), using console only");

@@ -469,6 +469,45 @@ router.get(
 
 /**
  * @swagger
+ * /api/complaints/stats:
+ *   get:
+ *     summary: Obtener estadísticas de denuncias
+ *     description: Obtiene estadísticas generales de denuncias (solo RRHH y Tenant Admin)
+ *     tags: [Complaints]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas obtenidas exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Estadísticas obtenidas exitosamente"
+ *                 data:
+ *                   $ref: '#/components/schemas/ComplaintStats'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ */
+router.get(
+  "/stats",
+  generalRateLimit,
+  authenticate,
+  ComplaintController.getStats
+);
+
+/**
+ * @swagger
  * /api/complaints/{id}:
  *   get:
  *     summary: Obtener denuncia específica
@@ -887,45 +926,6 @@ router.get(
   authenticate,
   getTimelineValidation,
   ComplaintController.getTimeline
-);
-
-/**
- * @swagger
- * /api/complaints/stats:
- *   get:
- *     summary: Obtener estadísticas de denuncias
- *     description: Obtiene estadísticas generales de denuncias (solo RRHH y Tenant Admin)
- *     tags: [Complaints]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Estadísticas obtenidas exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Estadísticas obtenidas exitosamente"
- *                 data:
- *                   $ref: '#/components/schemas/ComplaintStats'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         $ref: '#/components/responses/ForbiddenError'
- *       429:
- *         $ref: '#/components/responses/RateLimitError'
- */
-router.get(
-  "/stats",
-  generalRateLimit,
-  authenticate,
-  ComplaintController.getStats
 );
 
 module.exports = router;

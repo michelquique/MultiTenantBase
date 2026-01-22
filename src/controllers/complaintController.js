@@ -530,15 +530,23 @@ class ComplaintController {
    */
   static async getStats(req, res) {
     try {
+      logger.info("=== DEBUG getStats ===");
+      logger.info("req.user:", JSON.stringify(req.user, null, 2));
+      logger.info("req.tenantId:", req.tenantId);
+      logger.info("req.user.role:", req.user?.role);
+
       // Verificar permisos (solo RRHH y Tenant Admin pueden ver estadísticas)
       if (!["RRHH", "Tenant Admin"].includes(req.user.role)) {
+        logger.warn("Permiso denegado - rol:", req.user?.role);
         return res.status(403).json({
           success: false,
           message: "No tiene permisos para ver estadísticas",
         });
       }
 
+      logger.info("Llamando Complaint.getStats con tenantId:", req.tenantId);
       const stats = await Complaint.getStats(req.tenantId);
+      logger.info("Stats resultado:", JSON.stringify(stats, null, 2));
 
       res.status(200).json({
         success: true,
@@ -568,7 +576,9 @@ class ComplaintController {
         },
       });
     } catch (error) {
-      logger.error("Error al obtener estadísticas:", error);
+      logger.error("=== ERROR getStats ===");
+      logger.error("Error al obtener estadísticas:", error.message);
+      logger.error("Stack:", error.stack);
       res.status(500).json({
         success: false,
         message: "Error interno del servidor",
